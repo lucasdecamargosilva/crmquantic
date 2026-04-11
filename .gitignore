@@ -1,0 +1,13 @@
+# Python
+__pycache__/
+*.pyc
+.venv/
+scraper/data/*.json
+
+# Node
+node_modules/
+web/dist/
+
+# Env
+.env
+web/.env
