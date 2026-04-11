@@ -41,7 +41,7 @@ export default function InteracaoForm({ leadId, onSaved }: Props) {
       <select
         value={tipo}
         onChange={(e) => setTipo(e.target.value as InteracaoTipo)}
-        className="bg-gray-900 border border-gray-700 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-gray-500"
+        className="bg-abyss border border-border-subtle rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:border-accent-dim/40 transition-all text-soft"
       >
         {INTERACAO_TIPOS.map((t) => (
           <option key={t} value={t}>
@@ -54,14 +54,14 @@ export default function InteracaoForm({ leadId, onSaved }: Props) {
         value={conteudo}
         onChange={(e) => setConteudo(e.target.value)}
         placeholder="Descreva a interacao..."
-        className="flex-1 bg-gray-900 border border-gray-700 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-gray-500"
+        className="flex-1 bg-abyss border border-border-subtle rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-accent-dim/40 focus:ring-1 focus:ring-accent-dim/15 transition-all placeholder:text-muted/40"
       />
       <button
         type="submit"
         disabled={saving || !conteudo.trim()}
-        className="bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors"
+        className="bg-gradient-to-r from-accent-dim to-accent hover:from-accent hover:to-accent-bright disabled:opacity-40 disabled:cursor-not-allowed text-white text-sm font-semibold px-5 py-2.5 rounded-xl transition-all duration-200 glow-accent"
       >
-        {saving ? "Salvando..." : "Adicionar"}
+        {saving ? "..." : "Adicionar"}
       </button>
     </form>
   );

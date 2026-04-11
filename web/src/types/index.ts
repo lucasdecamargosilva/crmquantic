@@ -28,6 +28,14 @@ export const LEAD_STATUSES: LeadStatus[] = [
   "descartado",
 ];
 
+export const PIPELINE_STATUSES: LeadStatus[] = [
+  "novo",
+  "dm_enviada",
+  "respondeu",
+  "interessado",
+  "fechou",
+];
+
 export interface Interacao {
   id: string;
   lead_id: string;
@@ -55,10 +63,28 @@ export const STATUS_LABELS: Record<LeadStatus, string> = {
 };
 
 export const STATUS_COLORS: Record<LeadStatus, string> = {
-  novo: "bg-blue-500",
-  dm_enviada: "bg-yellow-500",
-  respondeu: "bg-purple-500",
-  interessado: "bg-orange-500",
-  fechou: "bg-green-500",
-  descartado: "bg-gray-500",
+  novo: "bg-violet-500",
+  dm_enviada: "bg-purple-400",
+  respondeu: "bg-fuchsia-500",
+  interessado: "bg-amber-400",
+  fechou: "bg-emerald-400",
+  descartado: "bg-zinc-500",
+};
+
+export const STATUS_HEX: Record<LeadStatus, string> = {
+  novo: "#8b5cf6",
+  dm_enviada: "#a78bfa",
+  respondeu: "#d946ef",
+  interessado: "#fbbf24",
+  fechou: "#34d399",
+  descartado: "#71717a",
+};
+
+export const STATUS_BORDER: Record<LeadStatus, string> = {
+  novo: "border-violet-500/30",
+  dm_enviada: "border-purple-400/30",
+  respondeu: "border-fuchsia-500/30",
+  interessado: "border-amber-400/30",
+  fechou: "border-emerald-400/30",
+  descartado: "border-zinc-500/30",
 };
