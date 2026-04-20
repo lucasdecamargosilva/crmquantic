@@ -38,6 +38,7 @@ def main():
             "seguidores": lead["seguidores"],
             "tem_provador": lead.get("tem_provador", False),
             "status": "novo",
+            "idioma": lead.get("idioma", "pt"),
         }
 
         supabase.table("leads").insert(row).execute()

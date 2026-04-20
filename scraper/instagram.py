@@ -10,6 +10,13 @@ SEARCH_QUERIES = [
     "oculos de sol loja",
     "eyewear brasil",
     "otica oculos grau",
+    "otica armacoes",
+    "sunglasses store brazil",
+    "otica lentes contato",
+    "oculos originais",
+    "otica premium",
+    "oculos grife",
+    "optical store brazil",
 ]
 
 
@@ -34,6 +41,42 @@ def buscar_perfis(client: ApifyClient, query: str, limit: int) -> list[dict]:
     return items
 
 
+def detectar_idioma(bio: str, nome: str, site: str) -> str:
+    """Detecta pt, en ou es."""
+    texto = f"{bio} {nome} {site}".lower()
+
+    pt_words = ["oculos", "óculos", "otica", "ótica", "optica", "óptica", "armação", "armacao",
+                "brasileira", "loja", "ltda", "cnpj", "atendimento", "seg a sex",
+                "whatsapp", "envio", "brasil", "lentes", "grau", "você", "voce", "comprar"]
+    en_words = ["eyewear", "glasses", "sunglasses", "optical", "frames", "shop now", "free shipping",
+                "customer service", "united states", "usa", "europe", "new york", "los angeles",
+                "london", "paris", "made in", "worldwide"]
+    es_words = ["gafas", "lentes", "óptica", "óptica", "sol", "tienda", "envío", "gratis",
+                "méxico", "espana", "españa", "argentina", "colombia", "chile", "peru",
+                "bienvenido", "descuento", "nuestra", "nuestras", "probar"]
+
+    # Sites nacionais
+    if ".com.br" in site or site.endswith(".br"):
+        return "pt"
+    if any(x in site for x in [".mx", ".ar", ".cl", ".co", ".pe", ".es"]):
+        return "es"
+    if any(x in site for x in [".eu", ".co.uk", ".de", ".fr", ".it"]):
+        return "en"
+
+    pt_score = sum(1 for w in pt_words if w in texto)
+    en_score = sum(1 for w in en_words if w in texto)
+    es_score = sum(1 for w in es_words if w in texto)
+
+    max_score = max(pt_score, en_score, es_score)
+    if max_score == 0:
+        return "en"  # default internacional
+    if pt_score == max_score:
+        return "pt"
+    if es_score == max_score:
+        return "es"
+    return "en"
+
+
 def extrair_lead(item: dict) -> dict:
     """Extrai dados relevantes de um resultado do Apify."""
     # Pega o primeiro URL externo como site
@@ -44,13 +87,18 @@ def extrair_lead(item: dict) -> dict:
     if not site:
         site = item.get("externalUrl", "")
 
+    bio = item.get("biography", "") or ""
+    nome = item.get("fullName", "") or ""
+    idioma = detectar_idioma(bio, nome, site)
+
     return {
         "instagram": item.get("username", ""),
-        "nome_loja": item.get("fullName", ""),
+        "nome_loja": nome,
         "site": site,
         "seguidores": item.get("followersCount", 0) or item.get("followers", 0),
-        "bio": item.get("biography", ""),
+        "bio": bio,
         "is_business": item.get("isBusinessAccount", False),
+        "idioma": idioma,
     }
 
 
@@ -83,8 +131,19 @@ def main():
             if not username or username in seen_usernames:
                 continue
 
+            site = lead["site"].strip().lower()
+            if not site:
+                continue
+            if any(x in site for x in ["wa.me", "whatsapp", "api.whatsapp"]):
+                continue
+
+            # Oticas so se tiverem 10k+ seguidores
+            nome = (lead.get("nome_loja") or "").lower()
+            is_otica = any(x in nome or x in username.lower() for x in ["otica", "ótica", "optica", "óptica"])
+            if is_otica and lead["seguidores"] < 10000:
+                continue
+
             if lead["seguidores"] < args.min_seg:
-                print(f"    - @{username} — {lead['seguidores']} seg. (abaixo de {args.min_seg}, pulando)")
                 continue
 
             seen_usernames.add(username)

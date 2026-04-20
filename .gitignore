@@ -1,13 +1,39 @@
 # Python
 __pycache__/
 *.pyc
+*.pyo
 .venv/
+venv/
 scraper/data/*.json
 
 # Node
 node_modules/
 web/dist/
+web/.vite/
 
-# Env
+# Env & credenciais (NUNCA commitar)
 .env
+.env.*
+!.env.example
+scraper/.env
 web/.env
+
+# Sessao Instagram (contem cookies de login — NUNCA commitar)
+scraper/instagram_session/
+chrome-debug-profile/
+
+# macOS
+.DS_Store
+**/.DS_Store
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*

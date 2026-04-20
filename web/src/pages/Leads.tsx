@@ -1,16 +1,18 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
 import { supabase } from "../lib/supabase";
-import { LEAD_STATUSES, STATUS_LABELS, STATUS_COLORS } from "../types";
+import { LEAD_STATUSES, STATUS_LABELS } from "../types";
 import type { Lead, LeadStatus } from "../types";
 import StatusBadge from "../components/StatusBadge";
+import LeadModal from "../components/LeadModal";
+import NovoLeadModal from "../components/NovoLeadModal";
 
 export default function Leads() {
   const [leads, setLeads] = useState<Lead[]>([]);
   const [filtroStatus, setFiltroStatus] = useState<LeadStatus | "todos">("todos");
   const [busca, setBusca] = useState("");
   const [loading, setLoading] = useState(true);
-  const navigate = useNavigate();
+  const [selectedId, setSelectedId] = useState<string | null>(null);
+  const [showNovo, setShowNovo] = useState(false);
 
   useEffect(() => { fetchLeads(); }, [filtroStatus]);
 
@@ -36,9 +38,20 @@ export default function Leads() {
   return (
     <div className="p-8">
       {/* Header */}
-      <div className="mb-8">
-        <h1 className="font-serif text-3xl text-bright italic tracking-tight">Leads</h1>
-        <p className="text-dim text-xs mt-1.5 tracking-wide">{leads.length} coletados</p>
+      <div className="flex items-start justify-between mb-8">
+        <div>
+          <h1 className="font-serif text-3xl text-bright italic tracking-tight">Leads</h1>
+          <p className="text-dim text-xs mt-1.5 tracking-wide">{leads.length} coletados</p>
+        </div>
+        <button
+          onClick={() => setShowNovo(true)}
+          className="flex items-center gap-2 bg-violet hover:bg-violet-deep text-white text-xs font-semibold px-4 py-2.5 rounded-lg transition-all"
+        >
+          <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
+            <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
+          </svg>
+          Novo lead
+        </button>
       </div>
 
       {/* Filters */}
@@ -87,7 +100,7 @@ export default function Leads() {
               {filtered.map((lead, i) => (
                 <tr
                   key={lead.id}
-                  onClick={() => navigate(`/lead/${lead.id}`)}
+                  onClick={() => setSelectedId(lead.id)}
                   className="stagger-in border-b border-edge-subtle/60 hover:bg-surface/80 cursor-pointer transition-colors group"
                   style={{ animationDelay: `${i * 20}ms` }}
                 >
@@ -121,6 +134,21 @@ export default function Leads() {
             </div>
           )}
         </div>
+      )}
+
+      {/* Modals */}
+      {selectedId && (
+        <LeadModal
+          leadId={selectedId}
+          onClose={() => setSelectedId(null)}
+          onUpdated={fetchLeads}
+        />
+      )}
+      {showNovo && (
+        <NovoLeadModal
+          onClose={() => setShowNovo(false)}
+          onCreated={fetchLeads}
+        />
       )}
     </div>
   );

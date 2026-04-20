@@ -1,15 +1,15 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
 import { supabase } from "../lib/supabase";
 import type { Lead, LeadStatus } from "../types";
 import { PIPELINE_STATUSES, STATUS_LABELS, STATUS_HEX, STATUS_COLORS } from "../types";
+import LeadModal from "../components/LeadModal";
 
 export default function Pipeline() {
   const [leads, setLeads] = useState<Lead[]>([]);
   const [loading, setLoading] = useState(true);
   const [dragging, setDragging] = useState<string | null>(null);
   const [dragOver, setDragOver] = useState<LeadStatus | null>(null);
-  const navigate = useNavigate();
+  const [selectedId, setSelectedId] = useState<string | null>(null);
 
   useEffect(() => { fetchLeads(); }, []);
 
@@ -108,16 +108,26 @@ export default function Pipeline() {
                     draggable
                     onDragStart={() => setDragging(lead.id)}
                     onDragEnd={() => { setDragging(null); setDragOver(null); }}
-                    onClick={() => navigate(`/lead/${lead.id}`)}
-                    className={`stagger-in card-lift bg-surface border border-edge-subtle rounded-lg p-3 cursor-pointer group ${
-                      dragging === lead.id ? "opacity-30 scale-[0.97]" : ""
-                    }`}
+                    onClick={() => setSelectedId(lead.id)}
+                    className={`stagger-in card-lift relative overflow-hidden bg-surface border rounded-lg p-3 cursor-pointer group ${
+                      lead.ponto_positivo ? "border-emerald/40" : "border-edge-subtle"
+                    } ${dragging === lead.id ? "opacity-30 scale-[0.97]" : ""}`}
                     style={{ animationDelay: `${colIdx * 50 + i * 30}ms` }}
                   >
+                    {lead.ponto_positivo && (
+                      <div className="absolute top-0 left-0 w-1 h-full bg-emerald" />
+                    )}
                     {/* Name */}
-                    <p className="text-[13px] font-semibold text-bright truncate leading-snug">
-                      {lead.nome_loja || `@${lead.instagram}`}
-                    </p>
+                    <div className="flex items-center gap-1.5">
+                      <p className="text-[13px] font-semibold text-bright truncate leading-snug flex-1">
+                        {lead.nome_loja || `@${lead.instagram}`}
+                      </p>
+                      {lead.ponto_positivo && (
+                        <svg className="w-3 h-3 text-emerald shrink-0" fill="currentColor" viewBox="0 0 24 24">
+                          <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z" />
+                        </svg>
+                      )}
+                    </div>
 
                     {/* Handle */}
                     <p className="text-[11px] text-dim mt-0.5 truncate">
@@ -151,6 +161,14 @@ export default function Pipeline() {
           );
         })}
       </div>
+
+      {selectedId && (
+        <LeadModal
+          leadId={selectedId}
+          onClose={() => setSelectedId(null)}
+          onUpdated={fetchLeads}
+        />
+      )}
     </div>
   );
 }
