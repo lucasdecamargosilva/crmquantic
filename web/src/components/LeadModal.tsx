@@ -81,6 +81,13 @@ export default function LeadModal({ leadId, onClose, onUpdated }: Props) {
     onUpdated?.();
   }
 
+  async function salvarResponsavel(resp: string) {
+    const valor = resp.trim() || null;
+    await supabase.from("leads").update({ responsavel: valor }).eq("id", leadId);
+    setLead((prev) => (prev ? { ...prev, responsavel: valor } : null));
+    onUpdated?.();
+  }
+
   return (
     <div
       className="fixed inset-0 bg-base/70 backdrop-blur-sm z-50 flex items-center justify-center p-4"
@@ -171,6 +178,18 @@ export default function LeadModal({ leadId, onClose, onUpdated }: Props) {
                   Site
                 </a>
               )}
+            </div>
+
+            {/* Responsavel */}
+            <div className="mb-4">
+              <label className="text-[10px] font-semibold text-dim uppercase tracking-widest mb-2 block">Responsavel</label>
+              <input
+                type="text"
+                defaultValue={lead.responsavel ?? ""}
+                onBlur={(e) => salvarResponsavel(e.target.value)}
+                placeholder="Nome do responsavel"
+                className="w-full bg-surface border border-edge-subtle rounded-lg px-3.5 py-2.5 text-xs text-text placeholder:text-dim/50 focus:outline-none focus:border-violet/30 focus:ring-1 focus:ring-violet/10 transition-all"
+              />
             </div>
 
             {/* Notas */}

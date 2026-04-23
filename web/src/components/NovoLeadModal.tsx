@@ -15,6 +15,7 @@ export default function NovoLeadModal({ onClose, onCreated }: Props) {
   const [seguidores, setSeguidores] = useState("");
   const [idioma, setIdioma] = useState<"pt" | "en" | "es">("pt");
   const [status, setStatus] = useState<LeadStatus>("novo");
+  const [responsavel, setResponsavel] = useState("");
   const [notas, setNotas] = useState("");
   const [saving, setSaving] = useState(false);
   const [erro, setErro] = useState("");
@@ -39,6 +40,7 @@ export default function NovoLeadModal({ onClose, onCreated }: Props) {
       notas: notas.trim(),
       status,
       tem_provador: false,
+      responsavel: responsavel.trim() || null,
     });
 
     setSaving(false);
@@ -141,6 +143,17 @@ export default function NovoLeadModal({ onClose, onCreated }: Props) {
                 <option key={s} value={s}>{STATUS_LABELS[s]}</option>
               ))}
             </select>
+          </div>
+
+          <div>
+            <label className="text-[10px] font-semibold text-dim uppercase tracking-widest mb-1.5 block">Responsavel</label>
+            <input
+              type="text"
+              value={responsavel}
+              onChange={(e) => setResponsavel(e.target.value)}
+              placeholder="Nome do responsavel"
+              className="w-full bg-surface border border-edge-subtle rounded-lg px-3 py-2 text-sm text-text placeholder:text-dim/50 focus:outline-none focus:border-violet/30 focus:ring-1 focus:ring-violet/10 transition-all"
+            />
           </div>
 
           <div>

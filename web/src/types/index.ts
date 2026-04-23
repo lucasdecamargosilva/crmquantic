@@ -8,6 +8,7 @@ export interface Lead {
   status: LeadStatus;
   notas: string;
   ponto_positivo: boolean;
+  responsavel: string | null;
   created_at: string;
   updated_at: string;
 }
