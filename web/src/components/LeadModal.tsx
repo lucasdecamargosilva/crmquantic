@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { supabase } from "../lib/supabase";
-import type { Lead, Interacao, LeadStatus } from "../types";
+import type { Lead, Interacao, LeadStatus, Categoria } from "../types";
+import { CATEGORIAS, CATEGORIA_LABELS } from "../types";
 import StatusBadge from "./StatusBadge";
 import InteracaoForm from "./InteracaoForm";
 
@@ -85,6 +86,12 @@ export default function LeadModal({ leadId, onClose, onUpdated }: Props) {
     const valor = resp.trim() || null;
     await supabase.from("leads").update({ responsavel: valor }).eq("id", leadId);
     setLead((prev) => (prev ? { ...prev, responsavel: valor } : null));
+    onUpdated?.();
+  }
+
+  async function salvarCategoria(cat: Categoria) {
+    await supabase.from("leads").update({ categoria: cat }).eq("id", leadId);
+    setLead((prev) => (prev ? { ...prev, categoria: cat } : null));
     onUpdated?.();
   }
 
@@ -180,16 +187,30 @@ export default function LeadModal({ leadId, onClose, onUpdated }: Props) {
               )}
             </div>
 
-            {/* Responsavel */}
-            <div className="mb-4">
-              <label className="text-[10px] font-semibold text-dim uppercase tracking-widest mb-2 block">Responsavel</label>
-              <input
-                type="text"
-                defaultValue={lead.responsavel ?? ""}
-                onBlur={(e) => salvarResponsavel(e.target.value)}
-                placeholder="Nome do responsavel"
-                className="w-full bg-surface border border-edge-subtle rounded-lg px-3.5 py-2.5 text-xs text-text placeholder:text-dim/50 focus:outline-none focus:border-violet/30 focus:ring-1 focus:ring-violet/10 transition-all"
-              />
+            {/* Categoria + Responsavel */}
+            <div className="grid grid-cols-2 gap-3 mb-4">
+              <div>
+                <label className="text-[10px] font-semibold text-dim uppercase tracking-widest mb-2 block">Categoria</label>
+                <select
+                  value={lead.categoria ?? "oculos"}
+                  onChange={(e) => salvarCategoria(e.target.value as Categoria)}
+                  className="w-full bg-surface border border-edge-subtle rounded-lg px-3.5 py-2.5 text-xs text-sub focus:outline-none focus:border-violet/30 transition-all"
+                >
+                  {CATEGORIAS.map((c) => (
+                    <option key={c} value={c}>{CATEGORIA_LABELS[c]}</option>
+                  ))}
+                </select>
+              </div>
+              <div>
+                <label className="text-[10px] font-semibold text-dim uppercase tracking-widest mb-2 block">Responsavel</label>
+                <input
+                  type="text"
+                  defaultValue={lead.responsavel ?? ""}
+                  onBlur={(e) => salvarResponsavel(e.target.value)}
+                  placeholder="Nome"
+                  className="w-full bg-surface border border-edge-subtle rounded-lg px-3.5 py-2.5 text-xs text-text placeholder:text-dim/50 focus:outline-none focus:border-violet/30 focus:ring-1 focus:ring-violet/10 transition-all"
+                />
+              </div>
             </div>
 
             {/* Notas */}

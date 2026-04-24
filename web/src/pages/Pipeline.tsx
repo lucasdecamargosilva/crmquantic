@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { supabase } from "../lib/supabase";
-import type { Lead, LeadStatus } from "../types";
-import { PIPELINE_STATUSES, STATUS_LABELS, STATUS_HEX } from "../types";
+import type { Lead, LeadStatus, Categoria } from "../types";
+import { PIPELINE_STATUSES, STATUS_LABELS, STATUS_HEX, CATEGORIAS, CATEGORIA_LABELS } from "../types";
 import LeadModal from "../components/LeadModal";
 import DesempenhoResponsaveis from "../components/DesempenhoResponsaveis";
 import {
@@ -148,6 +148,8 @@ export default function Pipeline() {
   const [loading, setLoading] = useState(true);
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [activeLead, setActiveLead] = useState<Lead | null>(null);
+  const [filtroCategoria, setFiltroCategoria] = useState<Categoria | "todas">("todas");
+  const [filtroResp, setFiltroResp] = useState<string>("todos");
 
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 5 } })
@@ -188,16 +190,29 @@ export default function Pipeline() {
     }
   }
 
+  const responsaveis = Array.from(
+    new Set(leads.map((l) => l.responsavel?.trim() || "— Sem responsavel"))
+  ).sort();
+
+  const leadsFiltered = leads.filter((l) => {
+    if (filtroCategoria !== "todas" && l.categoria !== filtroCategoria) return false;
+    if (filtroResp !== "todos") {
+      const resp = l.responsavel?.trim() || "— Sem responsavel";
+      if (resp !== filtroResp) return false;
+    }
+    return true;
+  });
+
   const grouped = PIPELINE_STATUSES.reduce(
     (acc, s) => {
-      acc[s] = leads.filter((l) => l.status === s);
+      acc[s] = leadsFiltered.filter((l) => l.status === s);
       return acc;
     },
     {} as Record<LeadStatus, Lead[]>
   );
 
-  const descartados = leads.filter((l) => l.status === "descartado");
-  const totalActive = leads.length - descartados.length;
+  const descartados = leadsFiltered.filter((l) => l.status === "descartado");
+  const totalActive = leadsFiltered.length - descartados.length;
 
   if (loading) {
     return (
@@ -222,6 +237,47 @@ export default function Pipeline() {
               </span>
             )}
           </p>
+          {/* Filtros categoria + responsavel */}
+          <div className="flex gap-3 mt-3 flex-wrap items-center">
+            <div className="flex gap-1">
+              <button
+                onClick={() => setFiltroCategoria("todas")}
+                className={`text-[10px] uppercase tracking-[0.2em] px-2.5 py-1 rounded transition-all ${
+                  filtroCategoria === "todas"
+                    ? "bg-violet/20 text-violet-light border border-violet/30"
+                    : "text-dim border border-edge-subtle hover:text-sub"
+                }`}
+              >
+                Todas
+              </button>
+              {CATEGORIAS.map((c) => (
+                <button
+                  key={c}
+                  onClick={() => setFiltroCategoria(c)}
+                  className={`text-[10px] uppercase tracking-[0.2em] px-2.5 py-1 rounded transition-all ${
+                    filtroCategoria === c
+                      ? "bg-violet/20 text-violet-light border border-violet/30"
+                      : "text-dim border border-edge-subtle hover:text-sub"
+                  }`}
+                >
+                  {CATEGORIA_LABELS[c]}
+                </button>
+              ))}
+            </div>
+
+            {responsaveis.length > 1 && (
+              <select
+                value={filtroResp}
+                onChange={(e) => setFiltroResp(e.target.value)}
+                className="text-[10px] uppercase tracking-[0.2em] px-2.5 py-1 rounded bg-surface border border-edge-subtle text-dim focus:outline-none focus:border-violet/30 transition-all"
+              >
+                <option value="todos">Todos responsaveis</option>
+                {responsaveis.map((r) => (
+                  <option key={r} value={r}>{r}</option>
+                ))}
+              </select>
+            )}
+          </div>
         </div>
         <div className="flex gap-4 mb-1">
           {PIPELINE_STATUSES.map((s) => (
@@ -253,7 +309,7 @@ export default function Pipeline() {
       </DndContext>
 
       {/* Desempenho por responsavel */}
-      <DesempenhoResponsaveis leads={leads} />
+      <DesempenhoResponsaveis leads={leadsFiltered} />
 
       {selectedId && (
         <LeadModal leadId={selectedId} onClose={() => setSelectedId(null)} onUpdated={fetchLeads} />
