@@ -10,6 +10,10 @@ export interface Lead {
   ponto_positivo: boolean;
   responsavel: string | null;
   categoria: Categoria;
+  telefone: string | null;
+  whatsapp: string | null;
+  email: string | null;
+  fonte_oportunidade: string | null;
   created_at: string;
   updated_at: string;
 }
@@ -35,6 +39,8 @@ export type LeadStatus =
   | "lead_coletado"
   | "interessado"
   | "fechou"
+  | "sem_site"
+  | "parou_responder"
   | "perdida"
   | "descartado";
 
@@ -45,6 +51,8 @@ export const LEAD_STATUSES: LeadStatus[] = [
   "lead_coletado",
   "interessado",
   "fechou",
+  "sem_site",
+  "parou_responder",
   "perdida",
   "descartado",
 ];
@@ -56,6 +64,8 @@ export const PIPELINE_STATUSES: LeadStatus[] = [
   "lead_coletado",
   "interessado",
   "fechou",
+  "sem_site",
+  "parou_responder",
   "perdida",
 ];
 
@@ -83,6 +93,8 @@ export const STATUS_LABELS: Record<LeadStatus, string> = {
   lead_coletado: "Lead Coletado",
   interessado: "Interessado",
   fechou: "Fechou",
+  sem_site: "Sem Site",
+  parou_responder: "Parou de Responder",
   perdida: "Perdida",
   descartado: "Descartado",
 };
@@ -94,6 +106,8 @@ export const STATUS_COLORS: Record<LeadStatus, { bg: string; text: string; dot: 
   lead_coletado: { bg: "bg-pink/10", text: "text-pink", dot: "bg-pink" },
   interessado: { bg: "bg-rose/10", text: "text-rose", dot: "bg-rose" },
   fechou: { bg: "bg-emerald/10", text: "text-emerald", dot: "bg-emerald" },
+  sem_site: { bg: "bg-yellow/10", text: "text-yellow", dot: "bg-yellow" },
+  parou_responder: { bg: "bg-stone/10", text: "text-stone", dot: "bg-stone" },
   perdida: { bg: "bg-orange/10", text: "text-orange", dot: "bg-orange" },
   descartado: { bg: "bg-dim/10", text: "text-dim", dot: "bg-dim" },
 };
@@ -105,6 +119,8 @@ export const STATUS_HEX: Record<LeadStatus, string> = {
   lead_coletado: "#ec4899",
   interessado: "#f43f5e",
   fechou: "#10b981",
+  sem_site: "#eab308",
+  parou_responder: "#78716c",
   perdida: "#f97316",
   descartado: "#52525b",
 };
